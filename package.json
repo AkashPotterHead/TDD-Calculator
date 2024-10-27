@@ -5,7 +5,7 @@
   "scripts": {
   "test": "jest",
   "build": "tsc",
-  "start": "npm run build && node dist/main.js"
+  "start": "npm run build && node executables/Main.js"
 }
 ,
   "keywords": [],
