@@ -1,40 +1,84 @@
-// src/services/MathService.ts
-
 export class MathService {
+  public delimiter: string = ",";
+  public inputString: string = "";
 
-  init(numbers: string, operation: string): number {
+  constructor(inputString: string) {
+    this.inputString = inputString;
+  }
+
+  init(operation: string): number {
+    this.identifyDelimiter();
+    this.filterNonNumericalValues();
+
     switch (operation) {
-      case '+': return this.add(numbers);
-      case '-': return this.subtract(numbers);
-      case '*': return this.multiply(numbers);
+      case '+': return this.add();
+      case '-': return this.subtract();
+      case '*': return this.multiply();
+      case '/': return this.divide();
       default: return 0;
     }
   }
 
-    add(numbers: string): number {
-      return numbers
-        .split(",")                      // Split the string by commas
-        .map(num => parseFloat(num))      // Convert each part to a number
-        .reduce((sum, num) => sum + num, 0); // Sum up all the numbers
-    }
+  add(): number {
+    const numbers = this.parseNumbers();
+    this.checkForNegatives(numbers);
+    return numbers.reduce((sum, num) => sum + num, 0);
+  }
 
-    subtract(numbers: string): number {
-  
-      console.log("Still constructing");
-      return 0;
-      
-    }
+  subtract(): number {
+    const numbers = this.parseNumbers();
+    this.checkForNegatives(numbers);
+    return numbers.reduce((sum, num) => sum - num, 0);
+  }
 
-    multiply(numbers: string): number {
-      return numbers
-        .split(",")                      // Split the string by commas
-        .map(num => parseFloat(num))      // Convert each part to a number
-        .reduce((sum, num) => sum * num, 1); // Sum up all the numbers
+  multiply(): number {
+    const numbers = this.parseNumbers();
+    this.checkForNegatives(numbers);
+    return numbers.reduce((product, num) => product * num, 1);
+  }
+
+  divide(): number {
+    const numbers = this.parseNumbers();
+    this.checkForNegatives(numbers);
+    return numbers.reduce((quotient, num) => {
+      if (num === 0) throw new Error("Division by zero is not allowed");
+      return quotient / num;
+    });
+  }
+
+  identifyDelimiter() {
+    if (this.inputString.startsWith("//")) {
+      const delimiterEnd = this.inputString.indexOf("\n");
+      this.delimiter = this.inputString.substring(2, delimiterEnd);
+      this.inputString = this.inputString.substring(delimiterEnd + 1);
     }
-    
-    divide(numbers: string): number {
-      console.log("Still constructing");
-      return 0;
+    this.trimWhiteSpaces();
+  }
+
+  trimWhiteSpaces() {
+    this.inputString = this.inputString
+      .split(this.delimiter)
+      .map((ele: string) => ele.trim())
+      .join(this.delimiter);
+  }
+
+  filterNonNumericalValues() {
+    this.inputString = this.inputString
+      .split(this.delimiter)
+      .filter(num => !isNaN(parseFloat(num)))
+      .join(this.delimiter);
+  }
+
+  parseNumbers(): number[] {
+    return this.inputString
+      .split(this.delimiter)
+      .map(num => parseFloat(num));
+  }
+
+  checkForNegatives(numbers: number[]) {
+    const negativeNumbers = numbers.filter(num => num < 0);
+    if (negativeNumbers.length > 0) {
+      throw new Error(`Negatives not allowed: ${negativeNumbers.join(", ")}`);
     }
   }
-  
+}
